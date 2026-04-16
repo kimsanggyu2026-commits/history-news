@@ -2,14 +2,16 @@ name: NIKH Notifier
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 1시간마다 실행
-  workflow_dispatch:      # 수동 실행 버튼
+    - cron: '0 * * * *'  # 1시간마다 자동으로 확인합니다.
+  workflow_dispatch:      # 직접 버튼을 눌러 실행할 수 있게 합니다.
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    
+    # 🌟 저장소에 파일을 쓸 수 있는 권한을 명확히 부여합니다.
     permissions:
-      contents: write    # 파일 쓰기 권한 명시
+      contents: write
 
     steps:
       - name: Checkout code
@@ -21,10 +23,12 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install feedparser requests
+        run: |
+          pip install feedparser requests
 
       - name: Run logic
         env:
+          PYTHONUNBUFFERED: 1  # 로그를 실시간으로 보여줍니다.
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
@@ -34,11 +38,10 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 파일이 실제로 존재할 때만 Git 작업을 수행합니다.
-          if [ -f last_link.txt ]; then
-            git add last_link.txt
-            git commit -m "Update last link" || echo "No changes to commit"
-            git push
-          else
-            echo "아직 기록 파일이 생성되지 않았습니다. 다음 실행을 기다립니다."
-          fi
+          # 🌟 핵심: 파일이 없으면 빈 파일을 만들고, 있으면 추가합니다.
+          touch last_link.txt
+          git add last_link.txt
+          
+          # 변경 사항이 있을 때만 저장합니다.
+          git commit -m "Update last link" || echo "No changes to commit"
+          git push
