@@ -2,34 +2,48 @@ name: NIKH Notifier
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 매 정시(1시간마다) 자동으로 실행됩니다.
-  workflow_dispatch:      # 우리가 원할 때 버튼을 눌러 바로 실행할 수 있게 합니다.
+    - cron: '0 * * * *'  # 1시간마다 자동으로 실행됩니다.
+  workflow_dispatch:      # 버튼을 눌러서 직접 실행할 수 있게 합니다.
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    
+    # 🌟 추가: GitHub Actions가 내 저장소에 파일을 쓸 수 있게 권한을 명시합니다.
+    permissions:
+      contents: write
+
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
-          
+
       - name: Install dependencies
-        run: pip install feedparser requests
-        
+        run: |
+          pip install feedparser requests
+
       - name: Run logic
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
-        
+
       - name: Update DB
-        # 알림을 보낸 링크를 기록해서 중복 알림을 방지하는 과정입니다.
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git add last_link.txt
-          git commit -m "Update last link" || exit 0
-          git push
+          # Git 사용자 설정
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # 🌟 수정: last_link.txt 파일이 실제로 있을 때만 작업을 진행하도록 방어 로직을 넣었습니다.
+          if [ -f last_link.txt ]; then
+            git add last_link.txt
+            # 변경 사항이 있을 때만 커밋하고, 없으면 조용히 넘어갑니다.
+            git commit -m "Update last link" || echo "No changes to commit"
+            git push
+          else
+            echo "last_link.txt 파일을 찾을 수 없습니다. 다음 실행 때 생성될 예정입니다."
+          fi
