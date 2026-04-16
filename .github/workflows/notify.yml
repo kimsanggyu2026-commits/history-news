@@ -2,16 +2,14 @@ name: NIKH Notifier
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 1시간마다 자동으로 실행됩니다.
-  workflow_dispatch:      # 버튼을 눌러서 직접 실행할 수 있게 합니다.
+    - cron: '0 * * * *'  # 1시간마다 실행
+  workflow_dispatch:      # 수동 실행 버튼
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    
-    # 🌟 추가: GitHub Actions가 내 저장소에 파일을 쓸 수 있게 권한을 명시합니다.
     permissions:
-      contents: write
+      contents: write    # 파일 쓰기 권한 명시
 
     steps:
       - name: Checkout code
@@ -23,8 +21,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: |
-          pip install feedparser requests
+        run: pip install feedparser requests
 
       - name: Run logic
         env:
@@ -34,16 +31,14 @@ jobs:
 
       - name: Update DB
         run: |
-          # Git 사용자 설정
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 🌟 수정: last_link.txt 파일이 실제로 있을 때만 작업을 진행하도록 방어 로직을 넣었습니다.
+          # 파일이 실제로 존재할 때만 Git 작업을 수행합니다.
           if [ -f last_link.txt ]; then
             git add last_link.txt
-            # 변경 사항이 있을 때만 커밋하고, 없으면 조용히 넘어갑니다.
             git commit -m "Update last link" || echo "No changes to commit"
             git push
           else
-            echo "last_link.txt 파일을 찾을 수 없습니다. 다음 실행 때 생성될 예정입니다."
+            echo "아직 기록 파일이 생성되지 않았습니다. 다음 실행을 기다립니다."
           fi
