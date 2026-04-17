@@ -1,18 +1,41 @@
-- name: Update DB
+name: NIKH Notifier
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install feedparser requests
+
+      - name: Run logic
+        env:
+          PYTHONUNBUFFERED: 1
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python main.py
+
+      - name: Update DB
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
-          # 파일이 없으면 생성
           touch last_link.txt
-          
           git add last_link.txt
-          
-          # 변경사항이 있을 때만 커밋
           git commit -m "Update last link" || echo "No changes to commit"
-          
-          # 🌟 [핵심 수정] 서버의 최신 내용을 먼저 가져와서 합칩니다.
           git pull --rebase origin main
-          
-          # 최종 결과물을 올립니다.
           git push
