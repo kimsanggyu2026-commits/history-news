@@ -4,7 +4,7 @@ import os
 
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
-RSS_URL = "https://history.go.kr/rss/rssfeed.do?id=000000000424"
+RSS_URL = "https://www.history.go.kr/rss/rssfeed.do?id=000000000424"
 DB_FILE = "last_link.txt"
 
 def send_telegram(message):
