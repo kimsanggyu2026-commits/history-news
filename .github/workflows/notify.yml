@@ -1,14 +1,46 @@
-- name: Update DB
+name: NIKH Notifier
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install feedparser requests
+
+      - name: Run logic
+        env:
+          PYTHONUNBUFFERED: 1
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python main.py
+
+      - name: Update DB
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 🌟 파일이 없으면 빈 파일이라도 생성해서 에러를 방지합니다.
+          # 🌟 파일이 지워졌더라도 여기서 빈 파일을 다시 만들어 로봇을 안심시킵니다.
           touch last_link.txt
           
-          # 파일 이름을 직접 지정하지 않고 현재 폴더의 모든 변화를 기록합니다.
+          # 모든 변경 사항(새로 생긴 파일 포함)을 깃에게 알려줍니다.
           git add .
           
-          # 변경 내용이 있을 때만 저장하고, 없으면 조용히 넘어갑니다.
+          # 변경 내용이 있을 때만 저장하고, 없으면 그냥 넘어갑니다.
           git commit -m "Update last link" || echo "No changes to commit"
           git push
