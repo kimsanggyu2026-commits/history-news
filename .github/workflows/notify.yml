@@ -2,14 +2,14 @@ name: NIKH Notifier
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 1시간마다 자동으로 확인합니다.
-  workflow_dispatch:      # 직접 버튼을 눌러 실행할 수 있게 합니다.
+    - cron: '0 * * * *'  # 1시간마다 자동 실행
+  workflow_dispatch:      # 수동 실행 버튼 활성화
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     
-    # 🌟 저장소에 파일을 쓸 수 있는 권한을 명확히 부여합니다.
+    # 🌟 권한 설정: 저장소에 파일을 쓸 수 있게 허용합니다.
     permissions:
       contents: write
 
@@ -28,7 +28,7 @@ jobs:
 
       - name: Run logic
         env:
-          PYTHONUNBUFFERED: 1  # 로그를 실시간으로 보여줍니다.
+          PYTHONUNBUFFERED: 1  # 로그를 실시간으로 즉시 보여줍니다.
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
@@ -38,10 +38,11 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 🌟 핵심: 파일이 없으면 빈 파일을 만들고, 있으면 추가합니다.
+          # 🌟 핵심: 파일이 없으면 빈 파일을 만들고(touch), 있으면 그대로 둡니다.
           touch last_link.txt
+          
           git add last_link.txt
           
-          # 변경 사항이 있을 때만 저장합니다.
+          # 변경사항이 있을 때만 커밋하고, 없으면 조용히 넘어갑니다.
           git commit -m "Update last link" || echo "No changes to commit"
           git push
