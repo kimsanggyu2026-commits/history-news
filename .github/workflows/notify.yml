@@ -35,11 +35,9 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 🌟 핵심: 파일이 없으면 만들고(touch), 있으면 무시합니다.
+          # 🌟 파일이 있어도 한 번 더 인식시켜주는 명령어
           touch last_link.txt
           
           git add last_link.txt
-          
-          # 변경사항이 있을 때만 커밋하고, 없으면 에러 없이 그냥 넘어갑니다.
           git commit -m "Update last link" || echo "No changes to commit"
           git push
