@@ -9,7 +9,7 @@ jobs:
   run-bot:
     runs-on: ubuntu-latest
     
-    # 🌟 권한 설정: 저장소에 파일을 쓸 수 있게 허용합니다.
+    # 저장소에 파일을 쓸 수 있는 권한을 명확히 부여합니다.
     permissions:
       contents: write
 
@@ -43,6 +43,6 @@ jobs:
           
           git add last_link.txt
           
-          # 변경사항이 있을 때만 커밋하고, 없으면 조용히 넘어갑니다.
+          # 변경사항(새 글 링크)이 있을 때만 저장하고, 없으면 조용히 넘어갑니다.
           git commit -m "Update last link" || echo "No changes to commit"
           git push
