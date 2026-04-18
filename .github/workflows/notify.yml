@@ -2,14 +2,14 @@ name: NIKH Notifier
 
 on:
   schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+    - cron: '0 * * * *'  # 1시간마다 실행
+  workflow_dispatch:      # 수동 실행
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write    # 🌟 저장소에 파일을 쓸 수 있는 권한
 
     steps:
       - name: Checkout code
@@ -21,7 +21,8 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install feedparser requests
+        run: |
+          pip install feedparser requests
 
       - name: Run logic
         env:
@@ -34,8 +35,13 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          touch last_link.txt
-          git add last_link.txt
-          git commit -m "Update last link" || echo "No changes to commit"
+          
+          # 🌟 생성된 모든 txt 파일을 챙깁니다.
+          git add *.txt
+          
+          # 변경사항이 있을 때만 저장합니다.
+          git commit -m "Update history records" || echo "No changes to commit"
+          
+          # 서버 최신화 및 업로드
           git pull --rebase origin main
           git push
