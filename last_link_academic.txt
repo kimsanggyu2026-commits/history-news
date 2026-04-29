@@ -1,1 +1,1 @@
-http://www.history.go.kr/board/boardDetail.do?groupId=000000000302&menuId=000000000424&pageId=000000000006&itemId=000000052201&itemIndex=0&totalCount=8352
+http://www.history.go.kr/board/boardDetail.do?groupId=000000000302&menuId=000000000424&pageId=000000000006&itemId=000000052260&itemIndex=0&totalCount=8354
